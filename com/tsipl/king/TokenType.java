@@ -33,5 +33,6 @@ enum TokenType {
     FOR, WHILE,
     PRINT,
 
+    // MISC
     EOF
 }

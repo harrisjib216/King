@@ -5,11 +5,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.tsipl.king.King;
-
 import static com.tsipl.king.TokenType.*;
 
 class Scanner {
+    private static final Map<String, TokenType> keywords;
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("or", OR);
+        keywords.put("not", NOT);
+        keywords.put("false", FALSE);
+        keywords.put("true", TRUE);
+        keywords.put("nil", NIL);
+        keywords.put("if", IF);
+        keywords.put("else", ELSE);
+        keywords.put("func", FUNC);
+        keywords.put("return", RETURN);
+        keywords.put("var", VAR);
+        keywords.put("class", CLASS);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("for", FOR);
+        keywords.put("while", WHILE);
+        keywords.put("print", PRINT);
+    }
+
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
@@ -28,7 +48,7 @@ class Scanner {
             scanToken();
         }
 
-        tokens.add(new Token(EOF, "", null, lineNumber));
+        tokens.add(new Token(EOF, "", null, line));
         return tokens;
     }
 
@@ -113,6 +133,8 @@ class Scanner {
             default:
                 if (isDigit(c)) {
                     number();
+                } else if (isAlpha(c)) {
+                    identifier();
                 } else {
                     King.error(line, "Unexpected character.");
                 }
@@ -120,9 +142,24 @@ class Scanner {
         }
     }
 
+    // letter or number
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
+    }
+
+    // is letter
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+    }
+
+    // is number
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
     // consume the current character, advance if double token
     private boolean match(char expected) {
-        if (isAtEnd || source.charAt(current) != expected) {
+        if (isAtEnd() || source.charAt(current) != expected) {
             return false;
         }
 
@@ -165,12 +202,11 @@ class Scanner {
 
     // get text of current lexeme and create token for it
     private void addToken(TokenType type, Object literal) {
-        String text = source.substring(start, currrent);
+        String text = source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
     }
 
     // LITERALS
-    // strings
     private void string() {
         // middle of string
         while (peek() != '"' && !isAtEnd()) {
@@ -192,11 +228,6 @@ class Scanner {
         addToken(STRING, value);
     }
 
-    // numbers
-    private boolean isDigit(char c) {
-        return c >= '0' && c <= '9';
-    }
-
     private void number() {
         while (isDigit(peek())) {
             advance();
@@ -212,4 +243,20 @@ class Scanner {
 
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
+
+    // IDENTIFIERS
+    private void identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+
+        TokenType type = keywords.get(source.substring(start, current));
+
+        if (type == null) {
+            type = IDENTIFIER;
+        }
+
+        addToken(type);
+    }
+
 }

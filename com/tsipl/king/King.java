@@ -30,6 +30,7 @@ public class King {
         InputStreamReader inputStream = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(inputStream);
 
+        System.out.println("Opening King REPL");
         for (;;) {
             System.out.print("> ");
             String text = reader.readLine();
@@ -70,9 +71,7 @@ public class King {
 
     private static void report(int lineNumber, String location, String message) {
         System.err.println(
-            "[line " + lineNumber + "] Error " + location ": " + message
-        );
+                "[line " + lineNumber + "] Error " + location + ": " + message);
         hadError = true;
     }
-
 }

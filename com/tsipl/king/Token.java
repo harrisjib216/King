@@ -1,5 +1,7 @@
 package com.tsipl.king;
 
+import com.tsipl.king.TokenType;
+
 class Token {
     final TokenType type;
     final String lexeme;
